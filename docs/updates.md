@@ -1,7 +1,7 @@
 # Update checks
 
 Android checks its independent manifest at
-`https://updates.lifeaxis.fun/lazer/version.json`. Other platforms retain the
+`https://lazer.lifeaxis.fun/lazer/version.json`. Other platforms retain the
 GitHub releases flow described below. Neither flow sends account, library,
 playback, or other business data. A failed check never interrupts playback or
 startup. See [Android cloud releases](releases/android-cloud.md) for signing,

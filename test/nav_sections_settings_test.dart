@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:lazer_nextgen/state/app_state.dart';
+import 'package:lazer_nextgen/l10n/app_localizations.dart';
 import 'package:lazer_nextgen/state/nav_sections.dart';
 import 'package:lazer_nextgen/theme/apple_design.dart';
 import 'package:lazer_nextgen/ui/nav_sections_page.dart';
@@ -14,6 +15,17 @@ Finder _row(NavSection section) =>
 
 Finder _switch(NavSection section) =>
     find.descendant(of: _row(section), matching: find.byType(Switch));
+
+Finder _moveButton(NavSection section, String direction) =>
+    find.byKey(ValueKey<String>('nav-section-$direction-${section.id}'));
+
+Finder _tile(NavSection section) =>
+    find.byKey(ValueKey<String>('nav-section-toggle-${section.id}'));
+
+OutlinedButton _button(WidgetTester tester, Finder finder) =>
+    tester.widget<OutlinedButton>(
+      find.descendant(of: finder, matching: find.byType(OutlinedButton)),
+    );
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues(<String, Object>{}));
@@ -85,15 +97,28 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      final Finder handle = find.descendant(
-        of: _row(NavSection.home),
-        matching: find.byType(ReorderableDragStartListener),
+      expect(find.byType(ReorderableListView), findsNothing);
+      expect(find.byType(ReorderableDragStartListener), findsNothing);
+      expect(
+        _button(tester, _moveButton(NavSection.home, 'up')).onPressed,
+        isNull,
       );
-      final double distance =
-          tester.getCenter(_row(NavSection.library)).dy -
-          tester.getCenter(_row(NavSection.home)).dy;
-      await tester.drag(handle, Offset(0, distance));
-      await tester.pumpAndSettle();
+      expect(
+        _button(tester, _moveButton(NavSection.settings, 'down')).onPressed,
+        isNull,
+      );
+      Future<void> pressMove(NavSection section, String direction) async {
+        final Finder button = _moveButton(section, direction);
+        await tester.ensureVisible(button);
+        await tester.pumpAndSettle();
+        final Rect rect = tester.getRect(button);
+        expect(rect.height, greaterThanOrEqualTo(52));
+        expect(rect.width, greaterThanOrEqualTo(100));
+        await tester.tapAt(rect.topLeft + const Offset(12, 12));
+        await tester.pumpAndSettle();
+      }
+
+      await pressMove(NavSection.home, 'down');
       expect(state.navSectionOrder, <NavSection>[
         NavSection.search,
         NavSection.home,
@@ -101,22 +126,33 @@ void main() {
         NavSection.likes,
         NavSection.settings,
       ]);
-      tester
-          .widget<ReorderableListView>(find.byType(ReorderableListView))
-          .onReorderItem!(1, 4);
-      await tester.pumpAndSettle();
+      await pressMove(NavSection.home, 'up');
+      expect(state.navSectionOrder, NavSection.defaultOrder);
+      for (int step = 0; step < 4; step++) {
+        await pressMove(NavSection.home, 'down');
+      }
       expect(state.navSectionOrder.last, NavSection.home);
-      await tester.tap(_switch(NavSection.search));
+      expect(state.hiddenNavSections, isEmpty);
+      await tester.ensureVisible(_tile(NavSection.search));
+      await tester.pumpAndSettle();
+      final Rect tileRect = tester.getRect(_tile(NavSection.search));
+      expect(tileRect.height, greaterThanOrEqualTo(64));
+      await tester.tapAt(tileRect.topLeft + Offset(8, tileRect.height / 2));
       await tester.pumpAndSettle();
       expect(state.hiddenNavSections, contains(NavSection.search));
       expect(tester.widget<Switch>(_switch(NavSection.search)).value, isFalse);
       expect(_row(NavSection.search), findsOneWidget);
-      await tester.tap(
-        find.byKey(const ValueKey<String>('nav-sections-reset')),
+      final Finder reset = find.byKey(
+        const ValueKey<String>('nav-sections-reset'),
       );
+      await tester.ensureVisible(reset);
+      await tester.pumpAndSettle();
+      await tester.tap(reset);
       await tester.pumpAndSettle();
       expect(state.navSectionOrder, NavSection.defaultOrder);
       expect(state.hiddenNavSections, contains(NavSection.search));
+      await tester.ensureVisible(_switch(NavSection.search));
+      await tester.pumpAndSettle();
       await tester.tap(_switch(NavSection.search));
       await tester.pumpAndSettle();
       expect(state.hiddenNavSections, isEmpty);
@@ -124,6 +160,49 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     });
   }
+
+  testWidgets('large text and translated controls fit a narrow phone', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final AppState state = AppState();
+    addTearDown(state.dispose);
+    await tester.runAsync(
+      () => AppLocalizations.delegate.load(const Locale('en')),
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAppleTheme(brightness: Brightness.dark),
+        locale: const Locale('en'),
+        localizationsDelegates: const [AppLocalizations.delegate],
+        supportedLocales: AppLocalizations.supportedLocales,
+        builder: (BuildContext context, Widget? child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: TextScaler.linear(2)),
+          child: child!,
+        ),
+        home: NavSectionsPage(state: state),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final Finder down = _moveButton(NavSection.home, 'down');
+    await tester.scrollUntilVisible(
+      down,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Move down'), findsWidgets);
+    expect(tester.getSize(down).height, greaterThanOrEqualTo(52));
+    await tester.tap(down);
+    await tester.pumpAndSettle();
+    expect(state.navSectionOrder.indexOf(NavSection.home), 1);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   testWidgets('editor disables only the last two visible switches', (
     WidgetTester tester,

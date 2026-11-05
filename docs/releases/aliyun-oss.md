@@ -3,7 +3,7 @@
 ## 当前边界
 
 - 应用：Lazer 独立发行版，Android 包名 `fun.lifeaxis.lazer`。
-- 下载目录固定 `/lazer/`，域名 `https://updates.lifeaxis.fun`。
+- 下载目录固定 `/lazer/`，域名 `https://lazer.lifeaxis.fun`。
 - 站点文件由 `ci/release_android.py` 从真实 APK 生成：`index.html`、`style.css`、
   `download.js`、图标、吉祥物、MiSans 字体、`version.json` 和版本化 APK。
 - 本文说明如何把生成的站点发布到自己的阿里云 OSS，不依赖共享的 EdgeOne 站点。
@@ -13,12 +13,12 @@
 1. **创建 OSS Bucket**（例如 `lazer-downloads`），地域按需选择（如 `cn-hangzhou`）。
    桶权限保持私有，只通过静态网站托管或 CDN 回源读取。
 2. **开启静态网站托管**：默认首页设为 `index.html`。
-3. **绑定自定义域名** `updates.lifeaxis.fun`：OSS 控制台 → 静态网站托管 → 绑定自定义域名，
+3. **绑定自定义域名** `lazer.lifeaxis.fun`：OSS 控制台 → 静态网站托管 → 绑定自定义域名，
    并按提示添加 CNAME 解析。
 4. **配置 HTTPS**：OSS 自定义域名的 HTTPS 需要阿里云 CDN（DCDN）承载：
-   - 创建 CDN 域名 `updates.lifeaxis.fun`，源站指向该 OSS Bucket；
+   - 创建 CDN 域名 `lazer.lifeaxis.fun`，源站指向该 OSS Bucket；
    - 申请免费 SSL 证书并开启 HTTPS；
-   - 在 DNS 把 `updates.lifeaxis.fun` 的 CNAME 指向 CDN 分配的 CNAME。
+   - 在 DNS 把 `lazer.lifeaxis.fun` 的 CNAME 指向 CDN 分配的 CNAME。
 5. **缓存规则**：`version.json` 不缓存，`*.apk` 长缓存，其余按默认。
 
 ## 发布
@@ -38,7 +38,7 @@ python3 ci/deploy_aliyun.py \
   --site build/releases/android/<versionCode>/lazer \
   --bucket lazer-downloads \
   --endpoint oss-cn-beijing.aliyuncs.com \
-  --domain updates.lifeaxis.fun \
+  --domain lazer.lifeaxis.fun \
   --verify
 ```
 
@@ -58,7 +58,7 @@ python3 ci/deploy_aliyun.py \
 ## 应用内更新
 
 Android 端在 **设置 → 关于 → 检查更新** 中读取
-`https://updates.lifeaxis.fun/lazer/version.json`。清单会校验版本名／构建号、更新说明、
+`https://lazer.lifeaxis.fun/lazer/version.json`。清单会校验版本名／构建号、更新说明、
 强制标志、SHA-256、体积、包名和最低 API；APK 只接受该域名下 `/lazer/` 的单层 `.apk`，
 拒绝凭据、查询串和片段。下载后校验大小、SHA-256、包名、版本和签名，再由系统安装器
 请求用户确认安装。

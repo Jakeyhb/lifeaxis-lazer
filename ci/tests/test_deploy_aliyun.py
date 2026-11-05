@@ -37,7 +37,7 @@ class DeployAliyunTests(unittest.TestCase):
         payload = {
             'versionCode': 9,
             'versionName': '2.0.0',
-            'apkUrl': 'https://updates.lifeaxis.fun/lazer/Lazer-2.0.0-9.apk',
+            'apkUrl': 'https://lazer.lifeaxis.fun/lazer/Lazer-2.0.0-9.apk',
             'notes': 'notes',
             'mandatory': False,
             'sha256': digest,
@@ -78,7 +78,7 @@ class DeployAliyunTests(unittest.TestCase):
     def test_collect_rejects_a_query_or_fragment_on_the_apk_url(self):
         with tempfile.TemporaryDirectory() as directory:
             self.site(Path(directory), manifest={
-                'apkUrl': 'https://updates.lifeaxis.fun/lazer/Lazer-2.0.0-9.apk?token=x',
+                'apkUrl': 'https://lazer.lifeaxis.fun/lazer/Lazer-2.0.0-9.apk?token=x',
             })
             with self.assertRaises(ValueError):
                 deploy_aliyun.collect(Path(directory))

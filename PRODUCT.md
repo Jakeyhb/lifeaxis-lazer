@@ -15,7 +15,7 @@ Flutter / Dart，Android 原生桥接使用 Kotlin；下载页面使用独立静
 ## Capabilities and Constraints
 
 - Android 独立发行版包名为 `fun.lifeaxis.lazer`，可与上游官方版并存，不兼容上游升级链；最低系统要求取自实际 APK。
-- 下载页与更新清单归属 `https://updates.lifeaxis.fun/lazer/`，不读站点根目录清单。
+- 下载页与更新清单归属 `https://lazer.lifeaxis.fun/lazer/`，不读站点根目录清单。
 - 正式更新必须维持原签名，安装由 Android 系统请求用户确认。
 - 不上传用户业务数据，不为更新请求通知、媒体或文件管理权限。
 - 共享下载站点的其他应用、历史 APK 和尚未发布的草稿必须严格隔离。

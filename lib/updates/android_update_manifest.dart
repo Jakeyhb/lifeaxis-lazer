@@ -12,7 +12,7 @@ class AndroidUpdateManifest {
   });
 
   static final Uri endpoint = Uri.parse(
-    'https://updates.lifeaxis.fun/lazer/version.json',
+    'https://lazer.lifeaxis.fun/lazer/version.json',
   );
   static const String packageName = 'fun.lifeaxis.lazer';
 

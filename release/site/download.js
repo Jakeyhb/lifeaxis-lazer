@@ -17,7 +17,7 @@
         manifest.packageName !== 'fun.lifeaxis.lazer' || !Number.isInteger(manifest.minSdk) || manifest.minSdk < 26 ||
         !Array.isArray(manifest.abis) || !manifest.abis.length ||
         manifest.abis.some((abi) => !['arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'].includes(abi)) ||
-        url.origin !== 'https://updates.lifeaxis.fun' || url.username || url.password || url.search || url.hash ||
+        url.origin !== 'https://lazer.lifeaxis.fun' || url.username || url.password || url.search || url.hash ||
         !/^\/lazer\/[A-Za-z0-9][A-Za-z0-9._-]*\.apk$/.test(url.pathname)) {
       throw new Error('发布信息不完整或下载地址不可信');
     }

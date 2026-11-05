@@ -15,7 +15,7 @@ import urllib.error
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
-ORIGIN = 'https://updates.lifeaxis.fun'
+ORIGIN = 'https://lazer.lifeaxis.fun'
 PACKAGE = 'fun.lifeaxis.lazer'
 PROJECT = 'makers-ff4cnnfdp6cn'
 

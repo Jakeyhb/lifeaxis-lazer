@@ -20,7 +20,7 @@ final List<int> _bytes = utf8.encode('test APK bytes, not a release');
 Map<String, dynamic> _json() => <String, dynamic>{
   'versionCode': 9,
   'versionName': '2.0.0-beta.6',
-  'apkUrl': 'https://updates.lifeaxis.fun/lazer/Lazer-2.0.0-beta.6-9.apk',
+  'apkUrl': 'https://lazer.lifeaxis.fun/lazer/Lazer-2.0.0-beta.6-9.apk',
   'notes': '新增应用内检查更新',
   'mandatory': false,
   'sha256': sha256.convert(_bytes).toString(),
@@ -99,15 +99,15 @@ void main() {
 
     test('rejects foreign origins, redirects paths and root assets', () {
       for (final String url in <String>[
-        'http://updates.lifeaxis.fun/lazer/a.apk',
+        'http://lazer.lifeaxis.fun/lazer/a.apk',
         'https://evil.example/lazer/a.apk',
-        'https://updates.lifeaxis.fun/a.apk',
-        'https://updates.lifeaxis.fun/zaice/a.apk',
-        'https://updates.lifeaxis.fun/lazer/sub/a.apk',
-        'https://updates.lifeaxis.fun/lazer/%2Fsecret.apk',
-        'https://updates.lifeaxis.fun/lazer/a.apk?token=x',
-        'https://user@updates.lifeaxis.fun/lazer/a.apk',
-        'https://updates.lifeaxis.fun:444/lazer/a.apk',
+        'https://lazer.lifeaxis.fun/a.apk',
+        'https://lazer.lifeaxis.fun/zaice/a.apk',
+        'https://lazer.lifeaxis.fun/lazer/sub/a.apk',
+        'https://lazer.lifeaxis.fun/lazer/%2Fsecret.apk',
+        'https://lazer.lifeaxis.fun/lazer/a.apk?token=x',
+        'https://user@lazer.lifeaxis.fun/lazer/a.apk',
+        'https://lazer.lifeaxis.fun:444/lazer/a.apk',
       ]) {
         expect(
           () => AndroidUpdateManifest.fromJson(_json()..['apkUrl'] = url),

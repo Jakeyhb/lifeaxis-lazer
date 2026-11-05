@@ -4,7 +4,7 @@
 The packaged `lazer/` directory comes from `ci/release_android.py`. This
 script uploads the whole directory to an OSS bucket under a prefix and sets
 cache headers so the update manifest is never cached while a published APK
-stays immutable. The public domain (for example `updates.lifeaxis.fun`) is
+stays immutable. The public domain (for example `lazer.lifeaxis.fun`) is
 configured once in the Aliyun console; see docs/releases/aliyun-oss.md.
 """
 
@@ -143,7 +143,7 @@ def main():
     parser.add_argument('--endpoint', required=True,
                         help='OSS endpoint, for example oss-cn-hangzhou.aliyuncs.com')
     parser.add_argument('--prefix', default='lazer')
-    parser.add_argument('--domain', default='updates.lifeaxis.fun')
+    parser.add_argument('--domain', default='lazer.lifeaxis.fun')
     parser.add_argument('--access-key-id', default=os.environ.get('OSS_ACCESS_KEY_ID'))
     parser.add_argument('--access-key-secret',
                         default=os.environ.get('OSS_ACCESS_KEY_SECRET'))
