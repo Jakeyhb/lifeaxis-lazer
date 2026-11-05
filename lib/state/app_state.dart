@@ -959,7 +959,7 @@ class AppState extends ChangeNotifier with BuildSafeNotifier {
   bool lyricBlurEnabled = true;
   bool showFrameStats = const bool.fromEnvironment('LAZER_FRAME_STATS');
 
-  double lyricFontSize = 22;
+  double lyricFontSize = 26;
   int lyricFontWeight = 600;
   FontPreferences fontPreferences = const FontPreferences();
   int _fontGeneration = 0;
@@ -1090,7 +1090,7 @@ class AppState extends ChangeNotifier with BuildSafeNotifier {
   Future<void> resetFonts() async {
     _fontGeneration++;
     fontPreferences = const FontPreferences();
-    lyricFontSize = 22;
+    lyricFontSize = 26;
     lyricFontWeight = 600;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
@@ -1622,7 +1622,7 @@ class AppState extends ChangeNotifier with BuildSafeNotifier {
       lyricBlurEnabled = prefs.getBool('lazer_lyric_blur') ?? true;
       showFrameStats =
           prefs.getBool('lazer_show_frame_stats') ?? showFrameStats;
-      lyricFontSize = (prefs.getDouble('lazer_lyric_font_size') ?? 22).clamp(
+      lyricFontSize = (prefs.getDouble('lazer_lyric_font_size') ?? 26).clamp(
         14,
         40,
       );

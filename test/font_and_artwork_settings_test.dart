@@ -160,7 +160,7 @@ void main() {
       expect(prefs.getBool('lazer_show_artwork_with_lyrics'), isNull);
       await state.resetFonts();
       expect(prefs.getString('lazer_font_preferences'), isNull);
-      expect(state.lyricFontSize, 22);
+      expect(state.lyricFontSize, 26);
     },
   );
 

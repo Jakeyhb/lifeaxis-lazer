@@ -125,7 +125,7 @@ class _WordLayout {
       textScaler: scaler,
       locale: locale,
     )..layout(maxWidth: width);
-    fontSize = scaler.scale(style.fontSize ?? 22);
+    fontSize = scaler.scale(style.fontSize ?? 26);
   }
 
   // Off-focus rows need one paragraph, not a dim paragraph and a selection

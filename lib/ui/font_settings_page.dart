@@ -110,7 +110,7 @@ class FontSettingsView extends StatelessWidget {
                   onWeight: (value) =>
                       unawaited(state.setLyricFontWeight(value ?? 600)),
                   onReset: () {
-                    unawaited(state.setLyricFontSize(22));
+                    unawaited(state.setLyricFontSize(26));
                     unawaited(state.setLyricFontWeight(600));
                   },
                 ),
