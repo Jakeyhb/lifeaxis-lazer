@@ -96,22 +96,29 @@ def collect(site):
     return files, manifest
 
 
+def _headers(name):
+    return {
+        'Cache-Control': cache_control(name),
+        'Content-Type': content_type(name),
+    }
+
+
 def upload(args, files):
+    prefix = args.prefix.strip('/')
+    if args.dry_run:
+        for name, meta in files.items():
+            key = prefix + '/' + name
+            print('Would upload {} ({} bytes) {}'.format(
+                key, meta['sizeBytes'], _headers(name)))
+        return
     import oss2
 
     auth = oss2.Auth(args.access_key_id, args.access_key_secret)
     bucket = oss2.Bucket(auth, args.endpoint, args.bucket)
-    prefix = args.prefix.strip('/')
     for name, meta in files.items():
         key = prefix + '/' + name
-        headers = {
-            'Cache-Control': cache_control(name),
-            'Content-Type': content_type(name),
-        }
-        if args.dry_run:
-            print('Would upload {} ({} bytes) {}'.format(key, meta['sizeBytes'], headers))
-            continue
-        bucket.put_object_from_file(key, str(args.site / name), headers=headers)
+        bucket.put_object_from_file(
+            key, str(args.site / name), headers=_headers(name))
         print('Uploaded {} ({} bytes)'.format(key, meta['sizeBytes']))
 
 

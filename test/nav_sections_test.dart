@@ -36,10 +36,10 @@ void main() {
     });
 
     test('restores the hidden set', () {
-      expect(
-        NavSection.restoreHidden('home,search'),
-        <NavSection>{NavSection.home, NavSection.search},
-      );
+      expect(NavSection.restoreHidden('home,search'), <NavSection>{
+        NavSection.home,
+        NavSection.search,
+      });
       expect(NavSection.restoreHidden(null), isEmpty);
       expect(NavSection.restoreHidden(''), isEmpty);
       expect(NavSection.restoreHidden('nope'), isEmpty);
@@ -50,6 +50,31 @@ void main() {
         expect(NavSection.fromId(section.id), section);
       }
       expect(NavSection.fromId('missing'), isNull);
+    });
+
+    test('drops duplicates and whitespace from stored order', () {
+      expect(
+        NavSection.restoreOrder(' likes,likes, settings ,unknown'),
+        <NavSection>[
+          NavSection.likes,
+          NavSection.settings,
+          NavSection.home,
+          NavSection.search,
+          NavSection.library,
+        ],
+      );
+    });
+
+    test('repairs a stored hidden set with too few visible destinations', () {
+      final Set<NavSection> hidden = NavSection.restoreHidden(
+        NavSection.values.map((NavSection section) => section.id).join(','),
+      );
+      expect(
+        NavSection.values.where(
+          (NavSection section) => !hidden.contains(section),
+        ),
+        <NavSection>[NavSection.home, NavSection.search],
+      );
     });
   });
 }

@@ -798,5 +798,7 @@
   "导航栏": "Navigation bar",
   "调整底部导航栏的顺序与显示": "Arrange the order and visibility of the bottom navigation bar",
   "没有可显示的入口": "No destinations to show",
-  "拖动调整底部导航栏的顺序，关闭开关可隐藏对应入口。": "Drag to reorder the bottom navigation bar; turn off a switch to hide a destination."
+  "拖动调整底部导航栏的顺序，关闭开关可隐藏对应入口。": "Drag to reorder the bottom navigation bar; turn off a switch to hide a destination.",
+  "拖动调整底部导航栏的顺序，关闭开关可隐藏对应入口。至少保留两个入口，隐藏的入口可随时重新开启。": "Drag to reorder the bottom navigation bar; turn off a switch to hide a destination. Keep at least two destinations visible. Hidden destinations can be turned back on at any time.",
+  "拖动调整顺序": "Drag to reorder"
 }

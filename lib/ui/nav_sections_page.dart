@@ -36,9 +36,8 @@ class NavSectionsView extends StatelessWidget {
           actions: <Widget>[
             SpringTextButton(
               key: const ValueKey<String>('nav-sections-reset'),
-              onPressed: () => unawaited(
-                state.setNavSectionOrder(NavSection.defaultOrder),
-              ),
+              onPressed: () =>
+                  unawaited(state.setNavSectionOrder(NavSection.defaultOrder)),
               child: const TrText('恢复默认顺序'),
             ),
           ],
@@ -50,7 +49,9 @@ class NavSectionsView extends StatelessWidget {
                 children: <Widget>[
                   const Padding(
                     padding: EdgeInsets.only(bottom: 16),
-                    child: TrText('拖动调整底部导航栏的顺序，关闭开关可隐藏对应入口。至少保留两个入口，隐藏的入口可随时重新开启。'),
+                    child: TrText(
+                      '拖动调整底部导航栏的顺序，关闭开关可隐藏对应入口。至少保留两个入口，隐藏的入口可随时重新开启。',
+                    ),
                   ),
                   AppleGroupedCard(
                     child: order.isEmpty
@@ -64,8 +65,9 @@ class NavSectionsView extends StatelessWidget {
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: order.length,
                             onReorderItem: (int oldIndex, int newIndex) {
-                              final List<NavSection> next =
-                                  List<NavSection>.of(order);
+                              final List<NavSection> next = List<NavSection>.of(
+                                order,
+                              );
                               final NavSection section = next.removeAt(
                                 oldIndex,
                               );
