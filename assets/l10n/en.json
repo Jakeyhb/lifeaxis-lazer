@@ -794,5 +794,9 @@
   "调整主页模块的顺序与显示": "Arrange the order and visibility of home modules",
   "恢复默认顺序": "Restore default order",
   "拖动调整主页模块的顺序，关闭开关可隐藏对应模块。": "Drag to reorder home modules; turn off a switch to hide a module.",
-  "没有可显示的模块": "No modules to show"
+  "没有可显示的模块": "No modules to show",
+  "导航栏": "Navigation bar",
+  "调整底部导航栏的顺序与显示": "Arrange the order and visibility of the bottom navigation bar",
+  "没有可显示的入口": "No destinations to show",
+  "拖动调整底部导航栏的顺序，关闭开关可隐藏对应入口。": "Drag to reorder the bottom navigation bar; turn off a switch to hide a destination."
 }

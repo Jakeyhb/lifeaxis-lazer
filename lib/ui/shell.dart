@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../local/local_music_page.dart';
 import '../state/app_state.dart';
 import '../state/build_safe_notifier.dart';
+import '../state/nav_sections.dart';
 import '../state/song_comments_controller.dart';
 import '../state/detail_requests.dart';
 import '../state/ui_preferences.dart';
@@ -92,6 +93,7 @@ class _BrowseLocation {
 class _AppShellState extends State<AppShell>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   _AppSection _section = _AppSection.home;
+  Set<NavSection> _knownHiddenNavSections = <NavSection>{};
   final List<_BrowseLocation> _browseHistory = <_BrowseLocation>[];
   Object? _railCollectionsSource;
   List<Playlist> _railPlaylistCache = const <Playlist>[];
@@ -175,6 +177,7 @@ class _AppShellState extends State<AppShell>
     // An unbounded controller has no implicit closed endpoint. Keep the idle
     // browse page live until the player actually starts moving.
     _nowPlayingMotion.animateBack(0, duration: Duration.zero);
+    _syncNavSelection();
     state.addListener(_onAppStateChanged);
     // The first frame is not a switch: only a change from here on is one.
     _shownContentKey = _contentKey;
@@ -277,6 +280,7 @@ class _AppShellState extends State<AppShell>
   /// is held back and folded into the rebuild that ends the switch.
   void _onAppStateChanged() {
     if (!mounted) return;
+    _syncNavSelection();
     if (_connectionKey != state.activeConnectionKey) {
       _browseHistory.clear();
       cancelCoverTransitions();
@@ -372,6 +376,8 @@ class _AppShellState extends State<AppShell>
       cancelCoverTransitions();
       oldWidget.state.removeListener(_onAppStateChanged);
       widget.state.addListener(_onAppStateChanged);
+      _knownHiddenNavSections = <NavSection>{};
+      _syncNavSelection();
       _playerPage = null;
     }
   }
@@ -395,18 +401,65 @@ class _AppShellState extends State<AppShell>
   }
 
   void _select(_AppSection section) {
+    setState(() => _changeSection(section));
+  }
+
+  void _changeSection(_AppSection section) {
     _browseHistory.clear();
     cancelCoverTransitions();
-    setState(() {
-      _section = section;
-      _playlist = null;
-      _artist = null;
-      _chart = null;
-      _artistSongs = false;
-      _artistReleases = null;
-      _comments = false;
-      _localMusic = false;
-    });
+    _section = section;
+    _playlist = null;
+    _artist = null;
+    _chart = null;
+    _artistSongs = false;
+    _artistReleases = null;
+    _comments = false;
+    _localMusic = false;
+  }
+
+  void _syncNavSelection() {
+    final NavSection current = _navSectionFor(_section);
+    final bool newlyHidden =
+        !_knownHiddenNavSections.contains(current) &&
+        state.hiddenNavSections.contains(current);
+    _knownHiddenNavSections = Set<NavSection>.of(state.hiddenNavSections);
+    if (newlyHidden && _visibleNavSections.isNotEmpty) {
+      _changeSection(_sectionFor(_visibleNavSections.first));
+    }
+  }
+
+  /// The navigation destinations in the listener's chosen order, minus the
+  /// ones they hid.
+  List<NavSection> get _visibleNavSections => state.visibleNavSections;
+
+  NavSection _navSectionFor(_AppSection section) => switch (section) {
+    _AppSection.home => NavSection.home,
+    _AppSection.search => NavSection.search,
+    _AppSection.library => NavSection.library,
+    _AppSection.likes => NavSection.likes,
+    _AppSection.settings => NavSection.settings,
+  };
+
+  _AppSection _sectionFor(NavSection section) => switch (section) {
+    NavSection.home => _AppSection.home,
+    NavSection.search => _AppSection.search,
+    NavSection.library => _AppSection.library,
+    NavSection.likes => _AppSection.likes,
+    NavSection.settings => _AppSection.settings,
+  };
+
+  /// Index of the open section among the visible destinations. Falls back to
+  /// the first visible one when the open section was hidden, so the bar never
+  /// shows an unselectable selection.
+  int get _selectedNavIndex {
+    final int index = _visibleNavSections.indexOf(_navSectionFor(_section));
+    return index < 0 ? 0 : index;
+  }
+
+  void _selectNavIndex(int index) {
+    final List<NavSection> visible = _visibleNavSections;
+    if (index < 0 || index >= visible.length) return;
+    _select(_sectionFor(visible[index]));
   }
 
   void _openPlaylist(Playlist playlist) {
@@ -1080,35 +1133,15 @@ class _AppShellState extends State<AppShell>
           color: apple.glass,
           border: Border(top: BorderSide(color: apple.separator, width: .5)),
           child: NavigationBar(
-            selectedIndex: _section.index,
-            onDestinationSelected: (int index) =>
-                _select(_AppSection.values[index]),
+            selectedIndex: _selectedNavIndex,
+            onDestinationSelected: _selectNavIndex,
             destinations: <NavigationDestination>[
-              NavigationDestination(
-                icon: const Icon(Icons.home_outlined),
-                selectedIcon: const Icon(Icons.home_rounded),
-                label: context.tr('主页'),
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.search_outlined),
-                selectedIcon: const Icon(Icons.search_rounded),
-                label: context.tr('搜索'),
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.library_music_outlined),
-                selectedIcon: const Icon(Icons.library_music_rounded),
-                label: context.tr('音乐库'),
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.favorite_border_rounded),
-                selectedIcon: const Icon(Icons.favorite_rounded),
-                label: context.tr('我喜欢'),
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.settings_outlined),
-                selectedIcon: const Icon(Icons.settings_rounded),
-                label: context.tr('设置'),
-              ),
+              for (final NavSection navSection in _visibleNavSections)
+                NavigationDestination(
+                  icon: Icon(navSection.icon),
+                  selectedIcon: Icon(navSection.selectedIcon),
+                  label: context.tr(navSection.labelKey),
+                ),
             ],
           ),
         ),
@@ -1147,53 +1180,21 @@ class _AppShellState extends State<AppShell>
                     sliver: SliverList.list(
                       children: <Widget>[
                         _sidebarLabel(apple, '浏览'), // i18n:key
-                        AppRailItem(
-                          icon: Icons.search_rounded,
-                          label: '搜索',
-                          selected:
-                              _section == _AppSection.search &&
-                              _playlist == null &&
-                              _artist == null &&
-                              _chart == null &&
-                              !_comments,
-                          onTap: () => _select(_AppSection.search),
-                        ),
-                        const SizedBox(height: 2),
-                        AppRailItem(
-                          icon: Icons.home_rounded,
-                          label: '主页',
-                          selected:
-                              _section == _AppSection.home &&
-                              _playlist == null &&
-                              _artist == null &&
-                              _chart == null &&
-                              !_comments,
-                          onTap: () => _select(_AppSection.home),
-                        ),
-                        const SizedBox(height: 2),
-                        AppRailItem(
-                          icon: Icons.library_music_rounded,
-                          label: '音乐库',
-                          selected:
-                              _section == _AppSection.library &&
-                              _playlist == null &&
-                              _artist == null &&
-                              _chart == null &&
-                              !_comments,
-                          onTap: () => _select(_AppSection.library),
-                        ),
-                        const SizedBox(height: 2),
-                        AppRailItem(
-                          icon: Icons.favorite_rounded,
-                          label: '我喜欢',
-                          selected:
-                              _section == _AppSection.likes &&
-                              _playlist == null &&
-                              _artist == null &&
-                              _chart == null &&
-                              !_comments,
-                          onTap: () => _select(_AppSection.likes),
-                        ),
+                        for (final NavSection navSection in _visibleNavSections)
+                          if (navSection != NavSection.settings) ...<Widget>[
+                            AppRailItem(
+                              icon: navSection.selectedIcon,
+                              label: navSection.labelKey,
+                              selected:
+                                  _section == _sectionFor(navSection) &&
+                                  _playlist == null &&
+                                  _artist == null &&
+                                  _chart == null &&
+                                  !_comments,
+                              onTap: () => _select(_sectionFor(navSection)),
+                            ),
+                            const SizedBox(height: 2),
+                          ],
                         const SizedBox(height: 22),
                         SizedBox(
                           height: 33,

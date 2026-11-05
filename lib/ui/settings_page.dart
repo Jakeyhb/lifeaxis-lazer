@@ -41,6 +41,7 @@ import 'login.dart';
 import 'widgets.dart';
 import 'font_settings_page.dart';
 import 'home_modules_page.dart';
+import 'nav_sections_page.dart';
 import 'shortcut_settings_page.dart';
 import 'scheduled_pause_settings.dart';
 import '../widgets/music_provider_badge.dart';
@@ -878,6 +879,17 @@ class _SettingsOverview extends StatelessWidget {
                       context,
                       page: (_) => HomeModulesPage(state: state),
                       view: (_) => HomeModulesView(state: state),
+                    ),
+                  ),
+                  _AppSettingRow(
+                    key: const ValueKey('open-nav-sections'),
+                    label: '导航栏',
+                    subtitle: '调整底部导航栏的顺序与显示',
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => SettingsDetailHost.open(
+                      context,
+                      page: (_) => NavSectionsPage(state: state),
+                      view: (_) => NavSectionsView(state: state),
                     ),
                   ),
                   _AppSettingRow(

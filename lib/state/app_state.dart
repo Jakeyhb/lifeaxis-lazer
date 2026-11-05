@@ -35,6 +35,7 @@ import '../utils/background_image.dart';
 import '../ui/background.dart' show albumSeedForCover;
 import 'build_safe_notifier.dart';
 import 'home_modules.dart';
+import 'nav_sections.dart';
 import 'listen_together.dart';
 import 'media_shortcuts.dart';
 import 'playback_queue_store.dart';
@@ -717,6 +718,55 @@ class AppState extends ChangeNotifier with BuildSafeNotifier {
     hiddenHomeModules = next;
     notifyListeners();
     await _homeModuleWriter.request();
+  }
+
+  /// The navigation destinations in the listener's chosen order.
+  List<NavSection> navSectionOrder = NavSection.defaultOrder;
+  Set<NavSection> hiddenNavSections = <NavSection>{};
+  List<NavSection> get visibleNavSections => <NavSection>[
+    for (final NavSection section in navSectionOrder)
+      if (!hiddenNavSections.contains(section)) section,
+  ];
+  late final CoalescingWriter _navSectionWriter = CoalescingWriter(() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'lazer_nav_section_order',
+      navSectionOrder.map((NavSection section) => section.id).join(','),
+    );
+    await prefs.setString(
+      'lazer_nav_hidden_sections',
+      hiddenNavSections.map((NavSection section) => section.id).join(','),
+    );
+  });
+
+  /// Stores the navigation order the listener arranged.
+  Future<void> setNavSectionOrder(List<NavSection> order) async {
+    final List<NavSection> next = List<NavSection>.unmodifiable(<NavSection>{
+      for (final NavSection section in order) section,
+      ...NavSection.defaultOrder,
+    });
+    if (listEquals(navSectionOrder, next)) return;
+    navSectionOrder = next;
+    notifyListeners();
+    await _navSectionWriter.request();
+  }
+
+  /// Shows or hides one navigation destination.
+  Future<void> setNavSectionHidden(NavSection section, bool hidden) async {
+    final Set<NavSection> next = Set<NavSection>.of(hiddenNavSections);
+    if (hidden) {
+      next.add(section);
+    } else {
+      next.remove(section);
+    }
+    if (NavSection.values.length - next.length <
+        NavSection.minimumVisibleCount) {
+      return;
+    }
+    if (setEquals(next, hiddenNavSections)) return;
+    hiddenNavSections = next;
+    notifyListeners();
+    await _navSectionWriter.request();
   }
 
   /// App shell backdrop: the album-coloured flowing canvas, the listener's
@@ -1572,6 +1622,12 @@ class AppState extends ChangeNotifier with BuildSafeNotifier {
       );
       hiddenHomeModules = HomeModule.restoreHidden(
         prefs.getString('lazer_home_hidden_modules'),
+      );
+      navSectionOrder = NavSection.restoreOrder(
+        prefs.getString('lazer_nav_section_order'),
+      );
+      hiddenNavSections = NavSection.restoreHidden(
+        prefs.getString('lazer_nav_hidden_sections'),
       );
       final String? storedSurface = prefs.getString('lazer_surface');
       surface = AppSurfaceLabels.parse(storedSurface);
