@@ -1,4 +1,4 @@
-package dev.naominet.lazer
+package fun.lifeaxis.lazer
 
 import android.Manifest
 import android.app.UiModeManager
@@ -32,9 +32,14 @@ class MainActivity : AudioServiceActivity() {
     private var storageResult: MethodChannel.Result? = null
     private var logExportResult: MethodChannel.Result? = null
     private var logExportText: String? = null
+    private var updateInstaller: AndroidUpdateInstaller? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        updateInstaller?.close()
+        updateInstaller = AndroidUpdateInstaller(this)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "fun.lifeaxis.lazer/android_updates")
+            .setMethodCallHandler { call, result -> updateInstaller?.handle(call, result) }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, AUDIO_SERVICE_CHANNEL)
             .setMethodCallHandler { call, result ->
                 if (call.method != "start") {
@@ -55,7 +60,7 @@ class MainActivity : AudioServiceActivity() {
                     result.error("audio_service_start_failed", error.message, null)
                 }
             }
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "dev.naominet.lazer/logs")
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "fun.lifeaxis.lazer/logs")
             .setMethodCallHandler { call, result ->
                 if (call.method != "export") {
                     result.notImplemented()
@@ -124,6 +129,12 @@ class MainActivity : AudioServiceActivity() {
                 }
                 result.success(openInBrowser(url))
             }
+    }
+
+    override fun onDestroy() {
+        updateInstaller?.close()
+        updateInstaller = null
+        super.onDestroy()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -330,11 +341,11 @@ class MainActivity : AudioServiceActivity() {
     }
 
     private companion object {
-        const val AUDIO_SERVICE_CHANNEL = "dev.naominet.lazer/audio_service"
-        const val HAPTICS_CHANNEL = "dev.naominet.lazer/haptics"
-        const val LOCAL_MEDIA_CHANNEL = "dev.naominet.lazer/local_media"
-        const val TV_CHANNEL = "dev.naominet.lazer/tv"
-        const val UPDATES_CHANNEL = "dev.naominet.lazer/updates"
+        const val AUDIO_SERVICE_CHANNEL = "fun.lifeaxis.lazer/audio_service"
+        const val HAPTICS_CHANNEL = "fun.lifeaxis.lazer/haptics"
+        const val LOCAL_MEDIA_CHANNEL = "fun.lifeaxis.lazer/local_media"
+        const val TV_CHANNEL = "fun.lifeaxis.lazer/tv"
+        const val UPDATES_CHANNEL = "fun.lifeaxis.lazer/updates"
         const val TELEVISION_FEATURE = "android.hardware.type.television"
         const val PERMISSION_REQUEST = 4101
         const val STORAGE_REQUEST = 4103

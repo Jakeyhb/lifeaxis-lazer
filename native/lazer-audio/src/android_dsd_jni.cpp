@@ -98,7 +98,7 @@ DecoderHandle *fromHandle(jlong handle) {
 }  // namespace
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_dev_naominet_lazer_AndroidDsdPcmNative_nativeOpen(
+Java_fun_lifeaxis_lazer_AndroidDsdPcmNative_nativeOpen(
     JNIEnv *environment, jclass, jint descriptor, jlong startOffset, jlong length,
     jint targetSampleRate, jboolean doP, jlongArray outputInfo) {
     lastOpenError.clear();
@@ -162,7 +162,7 @@ Java_dev_naominet_lazer_AndroidDsdPcmNative_nativeOpen(
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_dev_naominet_lazer_AndroidDsdPcmNative_nativeRead(
+Java_fun_lifeaxis_lazer_AndroidDsdPcmNative_nativeRead(
     JNIEnv *environment, jclass, jlong rawHandle, jbyteArray destination, jint capacityFrames) {
     DecoderHandle *handle = fromHandle(rawHandle);
     if (handle == nullptr || destination == nullptr || capacityFrames <= 0 ||
@@ -194,7 +194,7 @@ Java_dev_naominet_lazer_AndroidDsdPcmNative_nativeRead(
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_dev_naominet_lazer_AndroidDsdPcmNative_nativeSeek(
+Java_fun_lifeaxis_lazer_AndroidDsdPcmNative_nativeSeek(
     JNIEnv *, jclass, jlong rawHandle, jlong positionMillis) {
     DecoderHandle *handle = fromHandle(rawHandle);
     if (handle == nullptr) return LazerAudioErrorState;
@@ -202,26 +202,26 @@ Java_dev_naominet_lazer_AndroidDsdPcmNative_nativeSeek(
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_dev_naominet_lazer_AndroidDsdPcmNative_nativeTotalFrames(JNIEnv *, jclass, jlong rawHandle) {
+Java_fun_lifeaxis_lazer_AndroidDsdPcmNative_nativeTotalFrames(JNIEnv *, jclass, jlong rawHandle) {
     DecoderHandle *handle = fromHandle(rawHandle);
     return handle != nullptr ? handle->format.totalFrames : 0;
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_dev_naominet_lazer_AndroidDsdPcmNative_nativeSampleRate(JNIEnv *, jclass, jlong rawHandle) {
+Java_fun_lifeaxis_lazer_AndroidDsdPcmNative_nativeSampleRate(JNIEnv *, jclass, jlong rawHandle) {
     DecoderHandle *handle = fromHandle(rawHandle);
     return handle != nullptr ? handle->format.sampleRate : 0;
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_dev_naominet_lazer_AndroidDsdPcmNative_nativeLastError(
+Java_fun_lifeaxis_lazer_AndroidDsdPcmNative_nativeLastError(
     JNIEnv *environment, jclass, jlong rawHandle) {
     DecoderHandle *handle = fromHandle(rawHandle);
     return toJavaString(environment, handle != nullptr ? handle->decoder.lastError() : lastOpenError);
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_dev_naominet_lazer_AndroidDsdPcmNative_nativeClose(JNIEnv *, jclass, jlong rawHandle) {
+Java_fun_lifeaxis_lazer_AndroidDsdPcmNative_nativeClose(JNIEnv *, jclass, jlong rawHandle) {
     DecoderHandle *handle = fromHandle(rawHandle);
     if (handle == nullptr) return;
     handle->decoder.close();

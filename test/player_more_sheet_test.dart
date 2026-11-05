@@ -146,7 +146,7 @@ void main() {
   testWidgets(
     'the osu! action opens the encoded search for the original track metadata',
     (tester) async {
-      const MethodChannel channel = MethodChannel('dev.naominet.lazer/updates');
+      const MethodChannel channel = MethodChannel('fun.lifeaxis.lazer/updates');
       final List<MethodCall> calls = <MethodCall>[];
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
         MethodCall call,
@@ -198,7 +198,7 @@ void main() {
   testWidgets(
     'the open sheet follows track changes and searches the current song',
     (tester) async {
-      const MethodChannel channel = MethodChannel('dev.naominet.lazer/updates');
+      const MethodChannel channel = MethodChannel('fun.lifeaxis.lazer/updates');
       final List<MethodCall> calls = <MethodCall>[];
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
         MethodCall call,
@@ -253,7 +253,7 @@ void main() {
   testWidgets(
     'the osu! action is disabled when there is no searchable metadata',
     (tester) async {
-      const MethodChannel channel = MethodChannel('dev.naominet.lazer/updates');
+      const MethodChannel channel = MethodChannel('fun.lifeaxis.lazer/updates');
       final List<MethodCall> calls = <MethodCall>[];
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
         MethodCall call,

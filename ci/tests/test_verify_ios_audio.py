@@ -77,7 +77,7 @@ class IosAudioExportsTest(unittest.TestCase):
 
     def ipa(self, path, *, executable="Runner", binary=b"packaged Mach-O", info=None, entries=()):
         metadata = {
-            "CFBundleIdentifier": "dev.naominet.lazer",
+            "CFBundleIdentifier": "fun.lifeaxis.lazer",
             "CFBundlePackageType": "APPL",
             "CFBundleShortVersionString": "2.0.0",
             "CFBundleVersion": "8",

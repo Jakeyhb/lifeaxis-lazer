@@ -4,16 +4,8 @@
 
 <h1 align="center">Lazer</h1>
 
-<h3 align="center">
-  交流群：<a href="https://qm.qq.com/q/JJJfE0QV00">神秘交流群 · 1063238023</a>
-</h3>
-
 <p align="center">
-  <a href="https://qm.qq.com/q/JJJfE0QV00"><img alt="QQ 群：1063238023" src="https://img.shields.io/badge/QQ%E7%BE%A4-1063238023-12B7F5?style=for-the-badge&logo=tencentqq&logoColor=white"></a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/chuxuehaocai/Lazer/actions/workflows/build.yml"><img alt="build" src="https://img.shields.io/badge/build-GitHub%20Actions-6C8EBF"></a>
+  <a href="https://github.com/Jakeyhb/lifeaxis-lazer/actions/workflows/build.yml"><img alt="build" src="https://img.shields.io/badge/build-GitHub%20Actions-6C8EBF"></a>
   <img alt="Flutter" src="https://img.shields.io/badge/Flutter-3.47.0-54C5F8?logo=flutter&logoColor=white">
   <img alt="version" src="https://img.shields.io/badge/Lazer-v2.0.0-8E7CC3">
   <img alt="platforms" src="https://img.shields.io/badge/Windows%20%C2%B7%20macOS%20%C2%B7%20Linux%20%C2%B7%20Android%20%C2%B7%20iOS-7FB6A4">
@@ -96,7 +88,7 @@ flutter run
 
 ## 自动构建
 
-向 `nextgen` 推送代码后，[GitHub Actions](https://github.com/chuxuehaocai/Lazer/actions/workflows/build.yml)
+向 `nextgen` 推送代码后，[GitHub Actions](https://github.com/Jakeyhb/lifeaxis-lazer/actions/workflows/build.yml)
 会先检查代码，再构建下面的产物。推送 `v*` 版本标签会在所有构建成功后自动创建 GitHub Release；
 带 `-beta.1` 等后缀的版本会标为预发布。文件名统一为 `Lazer-<系统>-<架构>`。
 

@@ -45,7 +45,7 @@ ignored on phones.
 
 ## Detection and the default mode
 
-`lib/tv/tv_mode.dart` asks the platform over `dev.naominet.lazer/tv`.
+`lib/tv/tv_mode.dart` asks the platform over `fun.lifeaxis.lazer/tv`.
 `MainActivity.isTelevision()` answers true when any of these hold:
 
 - `UiModeManager.currentModeType == UI_MODE_TYPE_TELEVISION`;

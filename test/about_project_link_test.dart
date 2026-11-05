@@ -12,7 +12,7 @@ import 'package:lazer_nextgen/tv/tv_mode.dart';
 import 'package:lazer_nextgen/updates/update_checker.dart';
 import 'package:lazer_nextgen/widgets/ui_scaling.dart';
 
-const _channel = MethodChannel('dev.naominet.lazer/updates');
+const _channel = MethodChannel('fun.lifeaxis.lazer/updates');
 final _projectLink = find.byKey(const ValueKey('open-github-project'));
 
 Future<void> _showAbout(
@@ -105,7 +105,7 @@ void main() {
         expect(calls, hasLength(1));
         expect(calls.single.method, 'openUrl');
         expect(calls.single.arguments, {
-          'url': 'https://github.com/chuxuehaocai/Lazer',
+          'url': 'https://github.com/Jakeyhb/lifeaxis-lazer',
         });
         expect(tester.takeException(), isNull);
       },
@@ -133,7 +133,7 @@ void main() {
       await tester.tap(_projectLink);
       await tester.pump();
       expect(
-        find.text('无法打开浏览器，请手动访问 https://github.com/chuxuehaocai/Lazer'),
+        find.text('无法打开浏览器，请手动访问 https://github.com/Jakeyhb/lifeaxis-lazer'),
         findsOneWidget,
       );
       expect(tester.takeException(), isNull);

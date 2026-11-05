@@ -89,7 +89,8 @@ class _BrowseLocation {
   final AlbumReleaseGroup? artistReleases;
 }
 
-class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
+class _AppShellState extends State<AppShell>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   _AppSection _section = _AppSection.home;
   final List<_BrowseLocation> _browseHistory = <_BrowseLocation>[];
   Object? _railCollectionsSource;
@@ -164,6 +165,7 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _nowPlayingMotion = AnimationController.unbounded(
       vsync: this,
       duration: PlayerPageMotion.spring.duration,
@@ -196,6 +198,19 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
 
   Timer? _updateTimer;
   AppRelease? _pendingUpdate;
+  DateTime? _updateRetryAfter;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
+    if (lifecycle != AppLifecycleState.resumed) return;
+    final Duration remaining =
+        _updateRetryAfter?.difference(DateTime.now()) ?? Duration.zero;
+    _scheduleUpdateCheck(
+      remaining > const Duration(seconds: 2)
+          ? remaining
+          : const Duration(seconds: 2),
+    );
+  }
 
   void _scheduleUpdateCheck(Duration delay) {
     _updateTimer?.cancel();
@@ -210,6 +225,9 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
     final AppRelease? release = _pendingUpdate ?? await state.checkForUpdates();
     if (!mounted) return;
     if (release == null) {
+      _updateRetryAfter = state.updateError == null
+          ? null
+          : DateTime.now().add(const Duration(minutes: 5));
       // Startup is often the least reliable moment to reach GitHub. Retry a
       // failure in this session; a successful check keeps the daily cadence.
       _scheduleUpdateCheck(
@@ -221,7 +239,7 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
     }
     // A manual check can skip this release while an automatic prompt is
     // waiting behind another route. Apply that decision to the retained result.
-    if (state.skippedUpdateVersion == release.version.normalized) {
+    if (!release.mandatory && state.skippedUpdateVersion == release.skipKey) {
       _pendingUpdate = null;
       _scheduleUpdateCheck(const Duration(hours: 1));
       return;
@@ -360,6 +378,7 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     cancelCoverTransitions();
     _updateTimer?.cancel();
     state.removeListener(_onAppStateChanged);

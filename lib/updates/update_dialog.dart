@@ -8,6 +8,7 @@ import '../state/app_state.dart';
 import '../tv/tv_mode.dart';
 import 'open_external.dart';
 import 'update_checker.dart';
+import 'android_update_dialog.dart';
 
 /// The settings entry point: always checks, even for a skipped release.
 Future<void> checkUpdatesFromSettings(
@@ -34,13 +35,24 @@ Future<void> showUpdateDialog(
   AppState state,
   AppRelease release,
 ) async {
-  final bool? skipped = await showAppleDialog<bool>(
-    context: context,
-    builder: (BuildContext context) =>
-        _UpdateDialog(state: state, release: release),
-  );
-  if (skipped == true && context.mounted) {
-    _notice(context, context.tr('已跳过 ${release.version.normalized}'));
+  if (state.updatePromptOpen) return;
+  state.updatePromptOpen = true;
+  try {
+    final manifest = release.android;
+    if (manifest != null) {
+      await showAndroidUpdateDialog(context, manifest);
+      return;
+    }
+    final bool? skipped = await showAppleDialog<bool>(
+      context: context,
+      builder: (BuildContext context) =>
+          _UpdateDialog(state: state, release: release),
+    );
+    if (skipped == true && context.mounted) {
+      _notice(context, context.tr('已跳过 ${release.version.normalized}'));
+    }
+  } finally {
+    state.updatePromptOpen = false;
   }
 }
 

@@ -21,7 +21,7 @@ param(
     [string] $Alias = 'lazer-release',
     [int] $KeySize = 4096,
     [int] $ValidityDays = 10000,
-    [string] $DistinguishedName = 'CN=Lazer, OU=Android Release, O=chuxuehaocai, L=Shanghai, ST=Shanghai, C=CN',
+    [string] $DistinguishedName = 'CN=Lazer, OU=Android Release, O=LifeAxis, L=Shanghai, ST=Shanghai, C=CN',
     [string] $StorePassword,
     [string] $KeyStorePath,
     [switch] $Force

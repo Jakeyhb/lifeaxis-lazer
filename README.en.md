@@ -4,16 +4,8 @@
 
 <h1 align="center">Lazer</h1>
 
-<h3 align="center">
-  Community: <a href="https://qm.qq.com/q/JJJfE0QV00">神秘交流群 (QQ group) · 1063238023</a>
-</h3>
-
 <p align="center">
-  <a href="https://qm.qq.com/q/JJJfE0QV00"><img alt="QQ group: 1063238023" src="https://img.shields.io/badge/QQ%E7%BE%A4-1063238023-12B7F5?style=for-the-badge&logo=tencentqq&logoColor=white"></a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/chuxuehaocai/Lazer/actions/workflows/build.yml"><img alt="build" src="https://img.shields.io/badge/build-GitHub%20Actions-6C8EBF"></a>
+  <a href="https://github.com/Jakeyhb/lifeaxis-lazer/actions/workflows/build.yml"><img alt="build" src="https://img.shields.io/badge/build-GitHub%20Actions-6C8EBF"></a>
   <img alt="Flutter" src="https://img.shields.io/badge/Flutter-3.47.0-54C5F8?logo=flutter&logoColor=white">
   <img alt="version" src="https://img.shields.io/badge/Lazer-v2.0.0-8E7CC3">
   <img alt="platforms" src="https://img.shields.io/badge/Windows%20%C2%B7%20macOS%20%C2%B7%20Linux%20%C2%B7%20Android%20%C2%B7%20iOS-7FB6A4">
@@ -98,7 +90,7 @@ flutter run
 
 ## Automated builds
 
-Pushes to `nextgen` trigger [GitHub Actions](https://github.com/chuxuehaocai/Lazer/actions/workflows/build.yml).
+Pushes to `nextgen` trigger [GitHub Actions](https://github.com/Jakeyhb/lifeaxis-lazer/actions/workflows/build.yml).
 Checks run before platform builds. Pushing a `v*` version tag creates a GitHub
 Release after every build succeeds; tags with a suffix such as `-beta.1` are
 marked as pre-releases. Output filenames follow `Lazer-<OS>-<Arch>`.

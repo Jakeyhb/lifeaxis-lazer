@@ -869,8 +869,8 @@ class _SettingsOverview extends StatelessWidget {
                     onTap: () => unawaited(exportLogs(context, state)),
                   ),
                   _AppSettingRow(
-                    label: '检查更新',
-                    subtitle: '从 GitHub 获取最新版本',
+                    label: state.updateChecking ? '正在检查更新…' : '检查更新',
+                    subtitle: state.updateChecker.sourceLabel,
                     trailing: state.updateChecking
                         ? const SizedBox.square(
                             dimension: 18,

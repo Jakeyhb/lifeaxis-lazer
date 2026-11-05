@@ -29,6 +29,7 @@ import '../gateway/gateway.dart';
 import '../gateway/transport.dart';
 import '../lyrics/imported_lyrics_store.dart';
 import '../updates/release_version.dart';
+import '../updates/android_update_checker.dart';
 import '../updates/update_checker.dart';
 import '../utils/background_image.dart';
 import '../ui/background.dart' show albumSeedForCover;
@@ -160,7 +161,9 @@ class AppState extends ChangeNotifier with BuildSafeNotifier {
   }) : catalog = catalog ?? Catalog(),
        localLibrary = localLibrary ?? LocalLibrary(),
        _queueStore = queueStore ?? PlaybackQueueStore(),
-       updateChecker = updateChecker ?? UpdateChecker() {
+       updateChecker =
+           updateChecker ??
+           (Platform.isAndroid ? AndroidUpdateChecker() : UpdateChecker()) {
     _autoMixEnabled = autoMixEnabled;
     MotionTiming.speed = animationSpeed;
     if (deviceIsWatch) {
@@ -292,6 +295,7 @@ class AppState extends ChangeNotifier with BuildSafeNotifier {
 
   /// Whether a release check is in flight.
   bool updateChecking = false;
+  bool updatePromptOpen = false;
 
   /// Why the last check failed, if it did. Cleared when a new check starts.
   String? updateError;
@@ -339,7 +343,10 @@ class AppState extends ChangeNotifier with BuildSafeNotifier {
       await prefs.setInt('lazer_update_checked_at', updateCheckedAt);
       if (release == null) return null;
       final String? skipped = skippedUpdateVersion;
-      if (!manual && skipped != null && release.version.normalized == skipped) {
+      if (!manual &&
+          !release.mandatory &&
+          skipped != null &&
+          release.skipKey == skipped) {
         return null;
       }
       return release;
@@ -354,7 +361,8 @@ class AppState extends ChangeNotifier with BuildSafeNotifier {
 
   /// Stops automatic reminders for [release]; a later release still prompts.
   Future<void> skipUpdate(AppRelease release) async {
-    skippedUpdateVersion = release.version.normalized;
+    if (release.mandatory) return;
+    skippedUpdateVersion = release.skipKey;
     notifyListeners();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('lazer_skipped_update', skippedUpdateVersion!);

@@ -14,7 +14,7 @@ import 'switchable_media_platform.dart';
 typedef MediaArtworkResolver = Future<Uri?> Function(String? url);
 
 const MethodChannel _androidAudioServiceChannel = MethodChannel(
-  'dev.naominet.lazer/audio_service',
+  'fun.lifeaxis.lazer/audio_service',
 );
 
 Future<void> _startAndroidAudioService() async {
@@ -31,7 +31,7 @@ Future<LazerMediaHandler> initializeSystemMedia(AppState state) async {
   return AudioService.init<LazerMediaHandler>(
     builder: () => LazerMediaHandler(state, enabled: false),
     config: const AudioServiceConfig(
-      androidNotificationChannelId: 'dev.naominet.lazer.audio',
+      androidNotificationChannelId: 'fun.lifeaxis.lazer.audio',
       androidNotificationChannelName: 'Lazer',
       androidNotificationIcon: 'drawable/ic_stat_music',
       androidStopForegroundOnPause: false,

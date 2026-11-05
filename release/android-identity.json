@@ -1,0 +1,10 @@
+{
+  "packageName": "fun.lifeaxis.lazer",
+  "signerSha256": [
+    "1f5ed3f05f66626bd6642f4a82215eb53ddf4446add2dd54a639f52d7f51a17b"
+  ],
+  "distribution": "LifeAxis independent edition",
+  "upstreamPackageName": "dev.naominet.lazer",
+  "upstreamUpgradeCompatible": false,
+  "authorization": "User approved independent first release on 2026-11-05."
+}

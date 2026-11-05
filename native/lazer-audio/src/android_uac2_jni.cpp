@@ -107,7 +107,7 @@ bool CountPacketFrames(PcmPacketizer* packetizer, const std::uint32_t packet_cou
 } // namespace
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_libusbVersion(JNIEnv* env, jobject) {
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_libusbVersion(JNIEnv* env, jobject) {
     const auto* version = libusb_get_version();
     const std::string text = version == nullptr || version->major != 1 || version->minor != 0
         ? "unknown"
@@ -117,7 +117,7 @@ Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_libusbVersion(JNIEnv* env, jo
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_packetizerSelfTest(JNIEnv*, jobject) {
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_packetizerSelfTest(JNIEnv*, jobject) {
     PcmPacketizer full_speed_adaptive;
     if (!full_speed_adaptive.Configure(
             44100, 4, 1024, UsbSpeed::Full, SynchronizationType::Adaptive, 1, false)) return JNI_FALSE;
@@ -153,7 +153,7 @@ Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_packetizerSelfTest(JNIEnv*, j
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_openNative(JNIEnv* env, jobject, const jint fd) {
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_openNative(JNIEnv* env, jobject, const jint fd) {
     try {
         std::string error;
         auto session = IsoTransportSession::Open(fd, &error);
@@ -179,7 +179,7 @@ Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_openNative(JNIEnv* env, jobje
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_startNative(
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_startNative(
     JNIEnv* env,
     jobject,
     const jlong id,
@@ -198,7 +198,7 @@ Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_startNative(
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_writeNative(
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_writeNative(
     JNIEnv* env,
     jobject,
     const jlong id,
@@ -228,7 +228,7 @@ Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_writeNative(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_setPlayingNative(
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_setPlayingNative(
     JNIEnv* env,
     jobject,
     const jlong id,
@@ -240,7 +240,7 @@ Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_setPlayingNative(
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_flushNative(
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_flushNative(
     JNIEnv* env,
     jobject,
     const jlong id,
@@ -256,7 +256,7 @@ Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_flushNative(
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_stopNative(
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_stopNative(
     JNIEnv* env,
     jobject,
     const jlong id,
@@ -275,7 +275,7 @@ Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_stopNative(
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_underrunPacketsNative(
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_underrunPacketsNative(
     JNIEnv* env,
     jobject,
     const jlong id) {
@@ -286,7 +286,7 @@ Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_underrunPacketsNative(
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_errorCodeNative(
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_errorCodeNative(
     JNIEnv* env,
     jobject,
     const jlong id) {
@@ -297,7 +297,7 @@ Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_errorCodeNative(
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_playedFramesNative(
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_playedFramesNative(
     JNIEnv* env,
     jobject,
     const jlong id) {
@@ -308,7 +308,7 @@ Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_playedFramesNative(
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_bufferSizeFramesNative(
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_bufferSizeFramesNative(
     JNIEnv* env,
     jobject,
     const jlong id) {
@@ -319,7 +319,7 @@ Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_bufferSizeFramesNative(
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_isStalledNative(
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_isStalledNative(
     JNIEnv* env,
     jobject,
     const jlong id) {
@@ -330,7 +330,7 @@ Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_isStalledNative(
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_lastErrorNative(
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_lastErrorNative(
     JNIEnv* env,
     jobject,
     const jlong id) {
@@ -342,7 +342,7 @@ Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_lastErrorNative(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_dev_naominet_lazer_AndroidUac2NativeIsoBridge_closeNative(
+Java_fun_lifeaxis_lazer_AndroidUac2NativeIsoBridge_closeNative(
     JNIEnv*,
     jobject,
     const jlong id) {

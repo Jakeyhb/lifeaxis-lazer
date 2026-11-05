@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../utils/system_http.dart';
+import 'android_update_manifest.dart';
 import 'release_version.dart';
 
 /// A published GitHub release reduced to what the update prompt needs.
@@ -16,6 +17,7 @@ class AppRelease {
     required this.url,
     required this.prerelease,
     this.publishedAt,
+    this.android,
   });
 
   /// The original tag, e.g. `v2.0.0-beta.2`.
@@ -34,6 +36,12 @@ class AppRelease {
 
   final bool prerelease;
   final DateTime? publishedAt;
+  final AndroidUpdateManifest? android;
+
+  String get skipKey =>
+      android == null ? version.normalized : 'android:${android!.versionCode}';
+
+  bool get mandatory => android?.mandatory ?? false;
 
   /// Reads one entry of the GitHub releases API. Malformed or draft entries
   /// become null so one bad release cannot hide the rest.
@@ -86,13 +94,15 @@ class UpdateChecker {
        endpoint =
            endpoint ??
            Uri.parse(
-             'https://api.github.com/repos/chuxuehaocai/Lazer/releases?per_page=100',
+             'https://api.github.com/repos/Jakeyhb/lifeaxis-lazer/releases?per_page=100',
            );
 
-  static const String repositoryUrl = 'https://github.com/chuxuehaocai/Lazer';
+  static const String repositoryUrl = 'https://github.com/Jakeyhb/lifeaxis-lazer';
 
   final Future<http.Response> Function(Uri uri) _fetch;
   final Uri endpoint;
+
+  String get sourceLabel => '从 GitHub 获取最新版本';
 
   /// How long a check may take before the startup path gives up. GitHub is
   /// unreachable from some networks; an update check must never hold the app.

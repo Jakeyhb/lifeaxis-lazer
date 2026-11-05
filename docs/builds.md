@@ -1,6 +1,6 @@
 # Automated builds
 
-[Build nextgen](https://github.com/chuxuehaocai/Lazer/actions/workflows/build.yml)
+[Build nextgen](https://github.com/Jakeyhb/lifeaxis-lazer/actions/workflows/build.yml)
 runs for pushes and pull requests targeting `nextgen`, manual
 `workflow_dispatch` runs, and `v*` version tags. Flutter is pinned to
 **3.47.0 stable**. A successful run for a `v*` tag creates a GitHub Release

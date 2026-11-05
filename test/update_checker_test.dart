@@ -30,7 +30,7 @@ Map<String, Object?> _release(
   'tag_name': tag,
   'name': 'Lazer $tag',
   'body': body ?? 'Changes in $tag',
-  'html_url': 'https://github.com/chuxuehaocai/Lazer/releases/tag/$tag',
+  'html_url': 'https://github.com/Jakeyhb/lifeaxis-lazer/releases/tag/$tag',
   'prerelease': prerelease,
   'draft': draft,
   'published_at': '2026-10-20T12:00:00Z',

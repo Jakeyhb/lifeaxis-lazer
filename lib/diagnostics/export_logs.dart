@@ -40,7 +40,7 @@ Future<void> exportLogs(BuildContext context, AppState state) async {
   try {
     if (Platform.isAndroid) {
       final saved = await const MethodChannel(
-        'dev.naominet.lazer/logs',
+        'fun.lifeaxis.lazer/logs',
       ).invokeMethod<bool>('export', {'name': name, 'text': text});
       if (saved != true) return;
     } else {

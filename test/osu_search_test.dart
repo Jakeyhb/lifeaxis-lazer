@@ -18,7 +18,7 @@ import 'package:lazer_nextgen/tv/tv_mode.dart';
 import 'package:lazer_nextgen/widgets/accessible_controls.dart';
 
 const MethodChannel _updatesChannel = MethodChannel(
-  'dev.naominet.lazer/updates',
+  'fun.lifeaxis.lazer/updates',
 );
 
 const Track _encodedTrack = Track(

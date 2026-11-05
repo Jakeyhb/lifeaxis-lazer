@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 class AllFilesAccess {
   const AllFilesAccess({this.android});
   final bool? android;
-  static const channel = MethodChannel('dev.naominet.lazer/local_media');
+  static const channel = MethodChannel('fun.lifeaxis.lazer/local_media');
 
   Future<bool> hasAccess() => _call('hasAllFilesAccess');
   Future<bool> requestAccess() => _call('requestAllFilesAccess');
