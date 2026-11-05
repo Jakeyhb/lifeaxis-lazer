@@ -1,4 +1,6 @@
-package fun.lifeaxis.lazer
+// `fun` is a Kotlin keyword, so the package segment is escaped. The Android
+// applicationId and namespace stay fun.lifeaxis.lazer.
+package `fun`.lifeaxis.lazer
 
 import android.Manifest
 import android.app.UiModeManager
