@@ -53,8 +53,9 @@ enum NavSection {
     if (stored is String && stored.isNotEmpty) {
       for (final String id in stored.split(',')) {
         final NavSection? section = fromId(id.trim());
-        if (section != null && !restored.contains(section))
+        if (section != null && !restored.contains(section)) {
           restored.add(section);
+        }
       }
     }
     for (final NavSection section in values) {

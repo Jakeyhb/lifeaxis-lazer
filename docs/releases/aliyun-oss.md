@@ -37,7 +37,7 @@ export OSS_ACCESS_KEY_SECRET=...
 python3 ci/deploy_aliyun.py \
   --site build/releases/android/<versionCode>/lazer \
   --bucket lazer-downloads \
-  --endpoint oss-cn-hangzhou.aliyuncs.com \
+  --endpoint oss-cn-beijing.aliyuncs.com \
   --domain updates.lifeaxis.fun \
   --verify
 ```

@@ -6,6 +6,7 @@ import 'package:lazer_nextgen/state/app_state.dart';
 import 'package:lazer_nextgen/state/nav_sections.dart';
 import 'package:lazer_nextgen/theme/apple_design.dart';
 import 'package:lazer_nextgen/ui/nav_sections_page.dart';
+import 'package:lazer_nextgen/ui/pages.dart';
 import 'package:lazer_nextgen/ui/shell.dart';
 
 Finder _row(NavSection section) =>
@@ -93,7 +94,18 @@ void main() {
           tester.getCenter(_row(NavSection.home)).dy;
       await tester.drag(handle, Offset(0, distance));
       await tester.pumpAndSettle();
-      expect(state.navSectionOrder.indexOf(NavSection.home), 2);
+      expect(state.navSectionOrder, <NavSection>[
+        NavSection.search,
+        NavSection.home,
+        NavSection.library,
+        NavSection.likes,
+        NavSection.settings,
+      ]);
+      tester
+          .widget<ReorderableListView>(find.byType(ReorderableListView))
+          .onReorderItem!(1, 4);
+      await tester.pumpAndSettle();
+      expect(state.navSectionOrder.last, NavSection.home);
       await tester.tap(_switch(NavSection.search));
       await tester.pumpAndSettle();
       expect(state.hiddenNavSections, contains(NavSection.search));
@@ -181,14 +193,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(labels(), <String>['搜索', '我喜欢', '音乐库', '设置']);
       expect(bar().selectedIndex, 0);
-      final Finder title = find.descendant(
-        of: find.byType(NavigationBar),
-        matching: find.text('搜索'),
-      );
-      expect(
-        find.text('搜索').evaluate().length,
-        greaterThan(title.evaluate().length),
-      );
+      expect(find.byType(AppSearchPage), findsOneWidget);
+      expect(find.byType(AppHomePage), findsNothing);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
     },
