@@ -139,6 +139,7 @@ class NeteaseMusicGateway extends MusicGateway {
         playlist.created ||
         (_user != null && playlist.creatorId?.toString() == _user!.id.value),
     isFavorites: playlist.specialType == 5,
+    subscribed: playlist.subscribed ?? false,
   );
 
   static List<Map<String, dynamic>> _list(Object? value) => value is List
@@ -387,6 +388,15 @@ class NeteaseMusicGateway extends MusicGateway {
       );
     }
     await api.removeTracksFromPlaylist(playlistId, removals.toList());
+  }
+
+  @override
+  Future<void> setPlaylistFavorite(MusicId playlist, bool favorite) async {
+    _uid;
+    await api.subscribePlaylist(
+      _numeric(playlist, MusicEntityKind.playlist),
+      favorite,
+    );
   }
 
   @override

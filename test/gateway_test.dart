@@ -310,6 +310,31 @@ void main() {
       );
     });
 
+    test('maps playlist subscription (收藏) as a web request', () {
+      final NeteaseRequest subscribe = buildNeteaseRequest(
+        '/playlist/subscribe',
+        <String, String>{'id': '42', 't': '1'},
+      );
+      expect(subscribe.path, '/api/playlist/subscribe');
+      expect(subscribe.encoding, NeteaseEncoding.weapi);
+      expect(subscribe.payload['id'], '42');
+      expect(subscribe.payload['t'], '1');
+
+      final NeteaseRequest unsubscribe = buildNeteaseRequest(
+        '/playlist/subscribe',
+        <String, String>{'id': '42', 't': '0'},
+      );
+      expect(unsubscribe.payload['t'], '0');
+
+      expect(
+        () => buildNeteaseRequest('/playlist/subscribe', <String, String>{
+          'id': '0',
+          't': '1',
+        }),
+        throwsArgumentError,
+      );
+    });
+
     test('rejects unsupported aliases and bad ids', () {
       expect(
         () => buildNeteaseRequest('/unknown', const <String, String>{}),
@@ -569,6 +594,23 @@ void main() {
       expect(transport.requests.last.$1, '/playlist/tracks');
       expect(transport.requests.last.$2['pid'], '99');
       expect(transport.requests.last.$2['tracks'], '7,8');
+    });
+
+    test('collects and uncollects a playlist', () async {
+      final _PlaylistTransport transport = _PlaylistTransport();
+      final NeteaseGateway gateway = NeteaseGateway(transport: transport);
+      await gateway.subscribePlaylist(42, true);
+      expect(transport.requests.single.$1, '/playlist/subscribe');
+      expect(transport.requests.single.$2['id'], '42');
+      expect(transport.requests.single.$2['t'], '1');
+
+      await gateway.subscribePlaylist(42, false);
+      expect(transport.requests.last.$2['t'], '0');
+
+      await expectLater(
+        gateway.subscribePlaylist(0, true),
+        throwsArgumentError,
+      );
     });
 
     test('rejects invalid names and track ids before any request', () async {

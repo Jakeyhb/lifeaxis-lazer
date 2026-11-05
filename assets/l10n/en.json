@@ -787,5 +787,12 @@
   "音频暂时无法播放": "Audio is temporarily unavailable",
   "验证码": "Verification code",
   "验证码已发送": "Verification code sent",
-  "间奏": "Interlude"
+  "间奏": "Interlude",
+  "收藏": "Collect",
+  "已收藏": "Collected",
+  "首页模块": "Home modules",
+  "调整主页模块的顺序与显示": "Arrange the order and visibility of home modules",
+  "恢复默认顺序": "Restore default order",
+  "拖动调整主页模块的顺序，关闭开关可隐藏对应模块。": "Drag to reorder home modules; turn off a switch to hide a module.",
+  "没有可显示的模块": "No modules to show"
 }

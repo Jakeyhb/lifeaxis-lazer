@@ -193,6 +193,7 @@ class MusicPlaylist {
     this.writable = false,
     this.isPublic = false,
     this.isFavorites = false,
+    this.subscribed = false,
   });
   final MusicId id;
   final String name;
@@ -203,6 +204,9 @@ class MusicPlaylist {
   final bool writable;
   final bool isPublic;
   final bool isFavorites;
+
+  /// True when the signed-in account has collected (收藏) this playlist.
+  final bool subscribed;
 }
 
 class MusicPage<T> {

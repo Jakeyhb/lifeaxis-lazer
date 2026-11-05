@@ -88,6 +88,11 @@ abstract class MusicGateway {
   Future<void> removeFromPlaylist(MusicId playlist, List<int> indexes);
   Future<MusicPage<MusicSong>> favorites({int limit = 100, int offset = 0});
   Future<void> setFavorite(MusicId song, bool favorite);
+
+  /// Collects (收藏) or uncollects a playlist for the signed-in account.
+  /// Providers without a subscription concept keep the unsupported default.
+  Future<void> setPlaylistFavorite(MusicId playlist, bool favorite) =>
+      Future.error(MusicUnsupportedException(provider.id, 'playlistFavorite'));
   Future<MusicStream> stream(
     MusicId song, {
     MusicStreamQuality quality = MusicStreamQuality.original,

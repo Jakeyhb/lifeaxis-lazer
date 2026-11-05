@@ -85,10 +85,13 @@ class _AppPlaylistPageState extends State<AppPlaylistPage> {
   int _requestSerial = 0;
   bool _selecting = false;
   final Set<String> _selected = <String>{};
+  bool _favorite = false;
+  bool _favoriteBusy = false;
 
   @override
   void initState() {
     super.initState();
+    _favorite = widget.playlist.subscribed;
     _scroll.addListener(_scheduleLocateRefresh);
     widget.state.addListener(_scheduleLocateRefresh);
     unawaited(_load());
@@ -138,6 +141,27 @@ class _AppPlaylistPageState extends State<AppPlaylistPage> {
     _showLocate.dispose();
     _scroll.dispose();
     super.dispose();
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (_favoriteBusy) return;
+    final bool favorite = !_favorite;
+    setState(() {
+      _favorite = favorite;
+      _favoriteBusy = true;
+    });
+    final bool ok = await widget.state.setPlaylistFavorite(
+      widget.playlist,
+      favorite,
+    );
+    if (!mounted) return;
+    setState(() => _favoriteBusy = false);
+    if (!ok) {
+      setState(() => _favorite = !favorite);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr('收藏失败，请稍后重试。'))),
+      );
+    }
   }
 
   Future<void> _load({bool force = false}) async {
@@ -394,6 +418,12 @@ class _AppPlaylistPageState extends State<AppPlaylistPage> {
                                   tracks,
                                   folderName: widget.playlist.name,
                                 ),
+                          onFavorite: widget.state.signedIn &&
+                                  !widget.state.isNavidrome
+                              ? _toggleFavorite
+                              : null,
+                          favorite: _favorite,
+                          favoriteBusy: _favoriteBusy,
                         ),
                         const SizedBox(height: 22),
                         if (_error != null)
@@ -522,6 +552,9 @@ class AppPlaylistHeader extends StatelessWidget {
     this.cover,
     this.transitionIdentity,
     this.showShuffle = true,
+    this.onFavorite,
+    this.favorite = false,
+    this.favoriteBusy = false,
   });
 
   final Playlist playlist;
@@ -532,6 +565,11 @@ class AppPlaylistHeader extends StatelessWidget {
   final Widget? cover;
   final String? transitionIdentity;
   final bool showShuffle;
+
+  /// Collects (收藏) or uncollects the playlist; null hides the button.
+  final VoidCallback? onFavorite;
+  final bool favorite;
+  final bool favoriteBusy;
 
   /// Album-only extras. A playlist leaves both null and renders as before.
   final String? artist;
@@ -700,6 +738,18 @@ class AppPlaylistHeader extends StatelessWidget {
                 label: const TrText('下载'),
               ),
             ],
+            if (onFavorite != null)
+              SpringOutlinedButton.icon(
+                key: const ValueKey<String>('favorite-playlist'),
+                onPressed: favoriteBusy ? null : onFavorite,
+                icon: Icon(
+                  favorite
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
+                  size: 18,
+                ),
+                label: TrText(favorite ? '已收藏' : '收藏'),
+              ),
             if (showShuffle)
               Container(
                 width: 40,

@@ -171,6 +171,7 @@ class Playlist {
     this.description = '',
     this.coverUrl,
     this.trackCount = 0,
+    this.subscribed = false,
   });
 
   final String id;
@@ -181,6 +182,9 @@ class Playlist {
   final String? coverUrl;
   final int trackCount;
 
+  /// True when the signed-in account has collected (收藏) this playlist.
+  final bool subscribed;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
@@ -189,6 +193,7 @@ class Playlist {
     'description': description,
     'coverUrl': MusicId.tryParse(id) == null ? coverUrl : null,
     'trackCount': trackCount,
+    'subscribed': subscribed,
   };
 
   factory Playlist.fromJson(Map<String, dynamic> json) => Playlist(
@@ -199,6 +204,7 @@ class Playlist {
     description: json['description'] as String? ?? '',
     coverUrl: json['coverUrl'] as String?,
     trackCount: json['trackCount'] as int? ?? 0,
+    subscribed: json['subscribed'] as bool? ?? false,
   );
 }
 

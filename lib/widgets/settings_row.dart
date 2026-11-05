@@ -23,6 +23,7 @@ class SettingsRow extends StatelessWidget {
     required this.trailing,
     this.controlFlex = 9,
     this.expandControl = false,
+    this.onTap,
   });
 
   final String label;
@@ -32,6 +33,10 @@ class SettingsRow extends StatelessWidget {
 
   /// Choices use their available width; switches retain their natural size.
   final bool expandControl;
+
+  /// Makes the whole row tappable, for entries that open another page. The
+  /// row keeps its TV focus wash and ring through [TvFocusHighlight].
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +76,7 @@ class SettingsRow extends StatelessWidget {
           final Widget control = expandControl
               ? SizedBox(width: double.infinity, child: trailing)
               : trailing;
-          return Container(
+          final Widget content = Container(
             constraints: const BoxConstraints(
               minHeight: SettingsSpacing.rowMinHeight,
             ),
@@ -105,6 +110,15 @@ class SettingsRow extends StatelessWidget {
                       ),
                     ],
                   ),
+          );
+          if (onTap == null) return content;
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(10),
+              child: content,
+            ),
           );
         },
       ),

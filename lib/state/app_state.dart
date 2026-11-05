@@ -34,6 +34,7 @@ import '../updates/update_checker.dart';
 import '../utils/background_image.dart';
 import '../ui/background.dart' show albumSeedForCover;
 import 'build_safe_notifier.dart';
+import 'home_modules.dart';
 import 'listen_together.dart';
 import 'media_shortcuts.dart';
 import 'playback_queue_store.dart';
@@ -678,6 +679,46 @@ class AppState extends ChangeNotifier with BuildSafeNotifier {
     await _playlistOrderWriter.request();
   }
 
+  /// The home page sections in the listener's chosen order.
+  List<HomeModule> homeModuleOrder = HomeModule.defaultOrder;
+  Set<HomeModule> hiddenHomeModules = <HomeModule>{};
+  late final CoalescingWriter _homeModuleWriter = CoalescingWriter(() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'lazer_home_module_order',
+      homeModuleOrder.map((HomeModule module) => module.id).join(','),
+    );
+    await prefs.setString(
+      'lazer_home_hidden_modules',
+      hiddenHomeModules.map((HomeModule module) => module.id).join(','),
+    );
+  });
+
+  /// Stores the home section order the listener arranged.
+  Future<void> setHomeModuleOrder(List<HomeModule> order) async {
+    final List<HomeModule> next = List<HomeModule>.unmodifiable(<HomeModule>{
+      for (final HomeModule module in order) module,
+    });
+    if (listEquals(homeModuleOrder, next)) return;
+    homeModuleOrder = next;
+    notifyListeners();
+    await _homeModuleWriter.request();
+  }
+
+  /// Shows or hides one home section.
+  Future<void> setHomeModuleHidden(HomeModule module, bool hidden) async {
+    final Set<HomeModule> next = Set<HomeModule>.of(hiddenHomeModules);
+    if (hidden) {
+      next.add(module);
+    } else {
+      next.remove(module);
+    }
+    if (setEquals(next, hiddenHomeModules)) return;
+    hiddenHomeModules = next;
+    notifyListeners();
+    await _homeModuleWriter.request();
+  }
+
   /// App shell backdrop: the album-coloured flowing canvas, the listener's
   /// own picture, or off. Fresh installs start with the theme surface only.
   AppBackgroundMode backgroundMode = AppBackgroundMode.off;
@@ -1257,6 +1298,10 @@ class AppState extends ChangeNotifier with BuildSafeNotifier {
   String? collectionsError;
   Future<void>? _collectionsPending;
 
+  /// True while a playlist 收藏 toggle is in flight.
+  bool playlistFavoriteBusy = false;
+  String? playlistFavoriteError;
+
   /// All-time play counts, joined with song durations for 听歌排行.
   List<TrackPlayStat> playStats = const <TrackPlayStat>[];
   bool playStatsLoading = false;
@@ -1522,6 +1567,12 @@ class AppState extends ChangeNotifier with BuildSafeNotifier {
             in (prefs.getString('lazer_playlist_order') ?? '').split('\n'))
           if (id.isNotEmpty) id,
       ]);
+      homeModuleOrder = HomeModule.restoreOrder(
+        prefs.getString('lazer_home_module_order'),
+      );
+      hiddenHomeModules = HomeModule.restoreHidden(
+        prefs.getString('lazer_home_hidden_modules'),
+      );
       final String? storedSurface = prefs.getString('lazer_surface');
       surface = AppSurfaceLabels.parse(storedSurface);
       if (deviceIsTelevision && storedSurface == null) {
@@ -3210,6 +3261,32 @@ class AppState extends ChangeNotifier with BuildSafeNotifier {
       likeError = '收藏失败，请稍后重试。';
     }
     notifyListeners();
+  }
+
+  /// Collects (收藏) or uncollects a playlist for the signed-in account.
+  ///
+  /// Returns true when the subscription state changed; false when the caller
+  /// must keep showing the previous state (guest, foreign playlist or error).
+  Future<bool> setPlaylistFavorite(Playlist playlist, bool favorite) async {
+    if (_presentationDisposed) return false;
+    final MusicId? id = MusicId.tryParse(playlist.id);
+    if (id == null) return false;
+    final MusicGateway gateway = catalog.connections.resolve(id);
+    if (gateway.user == null) return false;
+    playlistFavoriteBusy = true;
+    playlistFavoriteError = null;
+    notifyListeners();
+    try {
+      await gateway.setPlaylistFavorite(id, favorite);
+      await refreshCollections(force: true);
+      return true;
+    } catch (_) {
+      playlistFavoriteError = '收藏失败，请稍后重试。';
+      return false;
+    } finally {
+      playlistFavoriteBusy = false;
+      if (!_presentationDisposed) notifyListeners();
+    }
   }
 
   Future<void> ensureCurrentLyrics({bool force = false}) async {

@@ -547,6 +547,18 @@ class NeteaseGateway {
     });
   }
 
+  /// Collects (收藏) or uncollects a playlist for the signed-in account.
+  ///
+  /// The subscription is an account-side state; callers refresh their
+  /// collections instead of trusting any response body.
+  Future<void> subscribePlaylist(int playlistId, bool subscribed) async {
+    if (playlistId <= 0) throw ArgumentError.value(playlistId, 'playlistId');
+    await _transport.request('/playlist/subscribe', <String, String>{
+      'id': '$playlistId',
+      't': subscribed ? '1' : '0',
+    });
+  }
+
   Future<GatewayPlaylist?> topPlaylist(int id) async {
     final Map<String, dynamic> detail = await playlistDetail(id);
     final dynamic playlist = detail['playlist'];

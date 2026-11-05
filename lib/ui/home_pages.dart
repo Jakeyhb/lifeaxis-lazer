@@ -10,6 +10,7 @@ import '../data/catalog.dart';
 import '../data/models.dart';
 import '../l10n/app_localizations.dart';
 import '../state/app_state.dart';
+import '../state/home_modules.dart';
 import '../theme/apple_design.dart';
 import '../widgets/app_scroll_behavior.dart';
 import '../widgets/catalog_links.dart';
@@ -137,6 +138,22 @@ class _AppHomePageState extends State<AppHomePage> {
         .firstOrNull;
     final double inset = pageInset(context);
     final bool compact = MediaQuery.sizeOf(context).width < 720;
+
+    // The listener's own order and visibility decide which sections appear;
+    // a section with nothing to show collapses on its own.
+    final List<Widget> sections = <Widget>[
+      for (final HomeModule module in widget.state.homeModuleOrder)
+        if (!widget.state.hiddenHomeModules.contains(module))
+          ..._homeModuleSections(
+            module,
+            feed: feed,
+            recent: recent,
+            recommendations: recommendations,
+            compact: compact,
+            stationArtist: stationArtist,
+          ),
+    ];
+
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -147,133 +164,7 @@ class _AppHomePageState extends State<AppHomePage> {
           slivers: <Widget>[
             SliverPadding(
               padding: EdgeInsets.fromLTRB(inset, 8, inset, 0),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate(<Widget>[
-                  HomeActionShelf(
-                    serverLibrary: widget.state.isNavidrome,
-                    busy: _startingStation,
-                    covers: <String?>[
-                      ...recent.map((track) => track.coverUrl),
-                      ...feed.quick.map((track) => track.coverUrl),
-                      ...feed.albums.map((album) => album.coverUrl),
-                    ],
-                    onDaily:
-                        !widget.state.signedIn ||
-                            (feed.quick.isEmpty && feed.daily.isEmpty)
-                        ? null
-                        : () => widget.onOpenPlaylist(
-                            dailyRecommendationsPlaylist(
-                              feed,
-                              serverLibrary: widget.state.isNavidrome,
-                            ),
-                          ),
-                    onFm: widget.state.signedIn
-                        ? () => _playStation(
-                            widget.state.catalog.personalFmTracks,
-                          )
-                        : null,
-                    onHeart: widget.state.collections.liked == null
-                        ? null
-                        : () => unawaited(_startHeartMode()),
-                    onReplay: recent.isEmpty
-                        ? null
-                        : () => widget.state.playQueue(recent),
-                  ),
-                  const SizedBox(height: 34),
-                  AppSectionHeader(title: '最近播放'),
-                  const SizedBox(height: 10),
-                  if (recent.isNotEmpty)
-                    _HomeTrackGrid(
-                      state: widget.state,
-                      tracks: recent,
-                      onPlay: widget.onPlayTrack,
-                    )
-                  else
-                    const AppNotice(message: '还没有最近播放记录'),
-                  if (feed.albums.isNotEmpty) ...<Widget>[
-                    const SizedBox(height: 36),
-                    const AppSectionHeader(title: '为你推荐的新发行'),
-                    const SizedBox(height: 14),
-                    _HomeReleaseShelf(
-                      state: widget.state,
-                      albums: feed.albums,
-                      compact: compact,
-                    ),
-                  ],
-                  if (feed.editorialPlaylists.isNotEmpty) ...<Widget>[
-                    const SizedBox(height: 38),
-                    const AppSectionHeader(title: '网易云编辑精选'),
-                    const SizedBox(height: 14),
-                    _EditorialPlaylistShelf(
-                      playlists: feed.editorialPlaylists,
-                      onOpen: widget.onOpenPlaylist,
-                      compact: compact,
-                    ),
-                  ],
-                  if (!widget.state.isNavidrome) ...[
-                    const SizedBox(height: 38),
-                    const AppSectionHeader(title: '排行榜'),
-                    const SizedBox(height: 14),
-                    if (widget.state.discoveryCharts.isNotEmpty)
-                      ChartShelf(
-                        charts: widget.state.discoveryCharts,
-                        onOpen: widget.onOpenChart,
-                        compact: compact,
-                      )
-                    else
-                      ChartLoadCard(
-                        loading: widget.state.discoveryChartsLoading,
-                        message: widget.state.discoveryChartsError,
-                        onRetry: () => unawaited(
-                          widget.state.refreshDiscoveryCharts(force: true),
-                        ),
-                      ),
-                  ],
-                  if (recommendations.isNotEmpty) ...<Widget>[
-                    const SizedBox(height: 38),
-                    const AppSectionHeader(title: '猜你喜欢'),
-                    const SizedBox(height: 14),
-                    _RecommendationShelf(
-                      playlists: recommendations,
-                      onOpen: widget.onOpenPlaylist,
-                      compact: compact,
-                    ),
-                  ],
-                  const SizedBox(height: 38),
-                  AppSectionHeader(title: '为你创建的电台'),
-                  const SizedBox(height: 14),
-                  _StationStrip(
-                    enabled: widget.state.signedIn,
-                    covers: <String?>[
-                      ...recent.map((track) => track.coverUrl),
-                      ...feed.quick.map((track) => track.coverUrl),
-                      ...feed.albums.map((album) => album.coverUrl),
-                    ],
-                    onFm: () =>
-                        _playStation(widget.state.catalog.personalFmTracks),
-                    onLiked: widget.state.collections.liked == null
-                        ? null
-                        : () => _playStation(() async {
-                            final tracks = await widget.state.catalog
-                                .playlistTracks(
-                                  widget.state.collections.liked!.id,
-                                );
-                            return List<Track>.of(tracks)..shuffle();
-                          }),
-                    onHeart: widget.state.collections.liked == null
-                        ? null
-                        : () => unawaited(_startHeartMode()),
-                    artistName: stationArtist?.name,
-                    onArtist: stationArtist == null
-                        ? null
-                        : () => _playStation(
-                            () => widget.state.catalog.artistStationTracks(
-                              stationArtist,
-                            ),
-                          ),
-                  ),
-                ]),
-              ),
+              sliver: SliverList(delegate: SliverChildListDelegate(sections)),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 28)),
           ],
@@ -281,6 +172,153 @@ class _AppHomePageState extends State<AppHomePage> {
       ),
     );
   }
+
+  /// Builds one home section. A section only returns widgets when the
+  /// catalogue actually has something for it, so an empty feed collapses the
+  /// section instead of leaving a bare header behind.
+  List<Widget> _homeModuleSections(
+    HomeModule module, {
+    required HomeFeed feed,
+    required List<Track> recent,
+    required List<Playlist> recommendations,
+    required bool compact,
+    required ArtistRef? stationArtist,
+  }) =>
+      switch (module) {
+        HomeModule.actions => <Widget>[
+            HomeActionShelf(
+              serverLibrary: widget.state.isNavidrome,
+              busy: _startingStation,
+              covers: <String?>[
+                ...recent.map((track) => track.coverUrl),
+                ...feed.quick.map((track) => track.coverUrl),
+                ...feed.albums.map((album) => album.coverUrl),
+              ],
+              onDaily:
+                  !widget.state.signedIn ||
+                      (feed.quick.isEmpty && feed.daily.isEmpty)
+                  ? null
+                  : () => widget.onOpenPlaylist(
+                      dailyRecommendationsPlaylist(
+                        feed,
+                        serverLibrary: widget.state.isNavidrome,
+                      ),
+                    ),
+              onFm: widget.state.signedIn
+                  ? () => _playStation(widget.state.catalog.personalFmTracks)
+                  : null,
+              onHeart: widget.state.collections.liked == null
+                  ? null
+                  : () => unawaited(_startHeartMode()),
+              onReplay: recent.isEmpty
+                  ? null
+                  : () => widget.state.playQueue(recent),
+            ),
+            const SizedBox(height: 34),
+          ],
+        HomeModule.recent => <Widget>[
+            AppSectionHeader(title: '最近播放'),
+            const SizedBox(height: 10),
+            if (recent.isNotEmpty)
+              _HomeTrackGrid(
+                state: widget.state,
+                tracks: recent,
+                onPlay: widget.onPlayTrack,
+              )
+            else
+              const AppNotice(message: '还没有最近播放记录'),
+          ],
+        HomeModule.newReleases => <Widget>[
+            if (feed.albums.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 36),
+              const AppSectionHeader(title: '为你推荐的新发行'),
+              const SizedBox(height: 14),
+              _HomeReleaseShelf(
+                state: widget.state,
+                albums: feed.albums,
+                compact: compact,
+              ),
+            ],
+          ],
+        HomeModule.editorial => <Widget>[
+            if (feed.editorialPlaylists.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 38),
+              const AppSectionHeader(title: '网易云编辑精选'),
+              const SizedBox(height: 14),
+              _EditorialPlaylistShelf(
+                playlists: feed.editorialPlaylists,
+                onOpen: widget.onOpenPlaylist,
+                compact: compact,
+              ),
+            ],
+          ],
+        HomeModule.charts => <Widget>[
+            if (!widget.state.isNavidrome) ...<Widget>[
+              const SizedBox(height: 38),
+              const AppSectionHeader(title: '排行榜'),
+              const SizedBox(height: 14),
+              if (widget.state.discoveryCharts.isNotEmpty)
+                ChartShelf(
+                  charts: widget.state.discoveryCharts,
+                  onOpen: widget.onOpenChart,
+                  compact: compact,
+                )
+              else
+                ChartLoadCard(
+                  loading: widget.state.discoveryChartsLoading,
+                  message: widget.state.discoveryChartsError,
+                  onRetry: () => unawaited(
+                    widget.state.refreshDiscoveryCharts(force: true),
+                  ),
+                ),
+            ],
+          ],
+        HomeModule.recommendations => <Widget>[
+            if (recommendations.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 38),
+              const AppSectionHeader(title: '猜你喜欢'),
+              const SizedBox(height: 14),
+              _RecommendationShelf(
+                playlists: recommendations,
+                onOpen: widget.onOpenPlaylist,
+                compact: compact,
+              ),
+            ],
+          ],
+        HomeModule.stations => <Widget>[
+            const SizedBox(height: 38),
+            AppSectionHeader(title: '为你创建的电台'),
+            const SizedBox(height: 14),
+            _StationStrip(
+              enabled: widget.state.signedIn,
+              covers: <String?>[
+                ...recent.map((track) => track.coverUrl),
+                ...feed.quick.map((track) => track.coverUrl),
+                ...feed.albums.map((album) => album.coverUrl),
+              ],
+              onFm: () => _playStation(widget.state.catalog.personalFmTracks),
+              onLiked: widget.state.collections.liked == null
+                  ? null
+                  : () => _playStation(() async {
+                      final tracks = await widget.state.catalog.playlistTracks(
+                        widget.state.collections.liked!.id,
+                      );
+                      return List<Track>.of(tracks)..shuffle();
+                    }),
+              onHeart: widget.state.collections.liked == null
+                  ? null
+                  : () => unawaited(_startHeartMode()),
+              artistName: stationArtist?.name,
+              onArtist: stationArtist == null
+                  ? null
+                  : () => _playStation(
+                      () => widget.state.catalog.artistStationTracks(
+                        stationArtist,
+                      ),
+                    ),
+            ),
+          ],
+      };
 }
 
 /// The 为你打造 shortcuts on the browse page.

@@ -40,6 +40,7 @@ import '../widgets/ui_scaling.dart';
 import 'login.dart';
 import 'widgets.dart';
 import 'font_settings_page.dart';
+import 'home_modules_page.dart';
 import 'shortcut_settings_page.dart';
 import 'scheduled_pause_settings.dart';
 import '../widgets/music_provider_badge.dart';
@@ -869,6 +870,17 @@ class _SettingsOverview extends StatelessWidget {
                     onTap: () => unawaited(exportLogs(context, state)),
                   ),
                   _AppSettingRow(
+                    key: const ValueKey('open-home-modules'),
+                    label: '首页模块',
+                    subtitle: '调整主页模块的顺序与显示',
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => SettingsDetailHost.open(
+                      context,
+                      page: (_) => HomeModulesPage(state: state),
+                      view: (_) => HomeModulesView(state: state),
+                    ),
+                  ),
+                  _AppSettingRow(
                     label: state.updateChecking ? '正在检查更新…' : '检查更新',
                     subtitle: state.updateChecker.sourceLabel,
                     trailing: state.updateChecking
@@ -960,9 +972,11 @@ class _AppSectionLabel extends StatelessWidget {
 
 class _AppSettingRow extends SettingsRow {
   const _AppSettingRow({
+    super.key,
     required super.label,
     required super.subtitle,
     required super.trailing,
+    super.onTap,
   });
 }
 

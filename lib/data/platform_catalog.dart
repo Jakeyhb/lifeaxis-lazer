@@ -55,6 +55,7 @@ class _PlatformCatalog {
     coverSeed: value.id.cacheKey.hashCode & 0x7fffffff,
     coverUrl: value.coverUrl,
     trackCount: value.songCount,
+    subscribed: value.subscribed,
   );
 
   Future<List<T>> all<T>(Future<MusicPage<T>> Function(int offset) load) async {

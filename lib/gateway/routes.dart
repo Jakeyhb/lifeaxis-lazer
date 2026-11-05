@@ -284,6 +284,13 @@ NeteaseRequest buildNeteaseRequest(
         web: true,
         body: <String, Object?>{'pid': id('pid')},
       );
+    case '/playlist/subscribe':
+      // `t=1` collects the playlist, `t=0` removes it again.
+      return request(
+        '/api/playlist/subscribe',
+        web: true,
+        body: <String, Object?>{'id': id(), 't': value('t') == '0' ? '0' : '1'},
+      );
     case '/user/playlist':
       return request(
         '/api/user/playlist',
